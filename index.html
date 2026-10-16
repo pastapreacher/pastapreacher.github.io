@@ -3,21 +3,630 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>My Games</title>
+	<title>Pasta Preacher · Games</title>
+	<meta name="description" content="Games by Pasta Preacher. Play them right here in your browser.">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 	<style>
+		/* ---------- Theme tokens ---------- */
+		:root {
+			--bg: #0a0b10;
+			--bg-raised: #12141c;
+			--line: rgba(255, 255, 255, 0.08);
+			--text: #eef0f5;
+			--text-dim: #9aa0ae;
+			--accent: #ff8a3d;
+			--accent-2: #8b5cf6;
+			--radius: 14px;
+			--max: 1120px;
+		}
+
+		* { box-sizing: border-box; }
+
+		html { scroll-behavior: smooth; }
+
 		body {
 			margin: 0;
-			height: 100vh;
+			background: var(--bg);
+			color: var(--text);
+			font-family: "Inter", system-ui, sans-serif;
+			line-height: 1.6;
+			-webkit-font-smoothing: antialiased;
+		}
+
+		body.no-scroll { overflow: hidden; }
+
+		a { color: inherit; }
+
+		.wrap {
+			width: 100%;
+			max-width: var(--max);
+			margin: 0 auto;
+			padding: 0 20px;
+		}
+
+		/* ---------- Header ---------- */
+		header {
+			position: fixed;
+			inset: 0 0 auto 0;
+			z-index: 10;
+			backdrop-filter: blur(12px);
+			background: rgba(10, 11, 16, 0.6);
+			border-bottom: 1px solid var(--line);
+		}
+
+		header .wrap {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			height: 64px;
+		}
+
+		.logo {
+			font-family: "Space Grotesk", sans-serif;
+			font-weight: 700;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+			text-decoration: none;
+			font-size: 15px;
+		}
+
+		.logo span { color: var(--accent); }
+
+		nav a {
+			margin-left: 24px;
+			text-decoration: none;
+			color: var(--text-dim);
+			font-size: 14px;
+			font-weight: 500;
+			transition: color 0.2s;
+		}
+
+		nav a:hover { color: var(--text); }
+
+		/* ---------- Hero ---------- */
+		.hero {
+			position: relative;
+			min-height: 88vh;
+			display: flex;
+			align-items: center;
+			overflow: hidden;
+			padding-top: 64px;
+		}
+
+		/* Slowly drifting glow orbs: the "tiny bit of flare" */
+		.glow {
+			position: absolute;
+			border-radius: 50%;
+			filter: blur(90px);
+			opacity: 0.35;
+			pointer-events: none;
+			animation: drift 18s ease-in-out infinite alternate;
+		}
+
+		.glow.one {
+			width: 520px; height: 520px;
+			background: var(--accent);
+			top: -120px; left: -140px;
+		}
+
+		.glow.two {
+			width: 460px; height: 460px;
+			background: var(--accent-2);
+			bottom: -160px; right: -120px;
+			animation-delay: -9s;
+		}
+
+		@keyframes drift {
+			from { transform: translate(0, 0) scale(1); }
+			to { transform: translate(80px, 40px) scale(1.15); }
+		}
+
+		.hero-content { position: relative; }
+
+		.eyebrow {
+			display: inline-block;
+			font-size: 12px;
+			font-weight: 600;
+			letter-spacing: 0.2em;
+			text-transform: uppercase;
+			color: var(--accent);
+			margin-bottom: 18px;
+		}
+
+		.hero h1 {
+			font-family: "Space Grotesk", sans-serif;
+			font-size: clamp(44px, 8vw, 92px);
+			line-height: 1.02;
+			margin: 0 0 22px;
+			letter-spacing: -0.02em;
+		}
+
+		.hero h1 .shine {
+			background: linear-gradient(90deg, var(--text) 0%, var(--accent) 40%, var(--accent-2) 60%, var(--text) 100%);
+			background-size: 200% auto;
+			-webkit-background-clip: text;
+			background-clip: text;
+			color: transparent;
+			animation: shine 8s linear infinite;
+		}
+
+		@keyframes shine {
+			to { background-position: 200% center; }
+		}
+
+		.hero p {
+			max-width: 520px;
+			color: var(--text-dim);
+			font-size: 18px;
+			margin: 0 0 34px;
+		}
+
+		/* ---------- Buttons ---------- */
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 13px 24px;
+			border-radius: 999px;
+			border: 0;
+			font: 600 15px "Inter", sans-serif;
+			cursor: pointer;
+			text-decoration: none;
+			transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+		}
+
+		.btn-primary {
+			background: var(--accent);
+			color: #1a0d03;
+			box-shadow: 0 8px 30px rgba(255, 138, 61, 0.35);
+		}
+
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 12px 40px rgba(255, 138, 61, 0.5);
+		}
+
+		.btn-ghost {
+			background: transparent;
+			color: var(--text);
+			border: 1px solid var(--line);
+		}
+
+		.btn-ghost:hover { background: rgba(255, 255, 255, 0.06); }
+
+		/* ---------- Games ---------- */
+		section { padding: 90px 0; }
+
+		.section-title {
+			font-family: "Space Grotesk", sans-serif;
+			font-size: 32px;
+			margin: 0 0 8px;
+		}
+
+		.section-sub {
+			color: var(--text-dim);
+			margin: 0 0 40px;
+		}
+
+		.games {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+			gap: 28px;
+		}
+
+		.card {
+			background: var(--bg-raised);
+			border: 1px solid var(--line);
+			border-radius: var(--radius);
+			overflow: hidden;
+			transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+		}
+
+		.card:hover {
+			transform: translateY(-6px);
+			border-color: rgba(255, 138, 61, 0.45);
+			box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+		}
+
+		/* Gradient placeholder shows when no cover image exists yet */
+		.cover {
+			position: relative;
+			aspect-ratio: 16 / 9;
+			background: linear-gradient(135deg, #2a1608, #1a1030 70%);
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			background: #0b0d12;
-			color: #f2f2f2;
-			font-family: system-ui, sans-serif;
+			overflow: hidden;
+		}
+
+		.cover .initial {
+			font-family: "Space Grotesk", sans-serif;
+			font-size: 72px;
+			font-weight: 700;
+			opacity: 0.25;
+		}
+
+		.cover img {
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			transition: transform 0.5s;
+		}
+
+		.card:hover .cover img { transform: scale(1.05); }
+
+		.card-body { padding: 24px; }
+
+		.tags {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 6px;
+			margin-bottom: 12px;
+		}
+
+		.tag {
+			font-size: 11px;
+			font-weight: 600;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--text-dim);
+			border: 1px solid var(--line);
+			padding: 3px 9px;
+			border-radius: 999px;
+		}
+
+		.card h3 {
+			font-family: "Space Grotesk", sans-serif;
+			font-size: 24px;
+			margin: 0 0 4px;
+		}
+
+		.card .tagline {
+			color: var(--accent);
+			font-weight: 500;
+			margin: 0 0 12px;
+		}
+
+		.card .desc {
+			color: var(--text-dim);
+			margin: 0 0 22px;
+			font-size: 15px;
+		}
+
+		.card-actions {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+		}
+
+		/* ---------- About & footer ---------- */
+		.about {
+			border-top: 1px solid var(--line);
+		}
+
+		.about p {
+			max-width: 640px;
+			color: var(--text-dim);
+			font-size: 17px;
+		}
+
+		footer {
+			border-top: 1px solid var(--line);
+			padding: 28px 0;
+			color: var(--text-dim);
+			font-size: 14px;
+		}
+
+		footer .wrap {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 12px;
+			justify-content: space-between;
+		}
+
+		/* ---------- Play overlay ---------- */
+		.player {
+			position: fixed;
+			inset: 0;
+			z-index: 100;
+			background: #000;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.player[hidden] { display: none; }
+
+		.player-bar {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+			padding: 8px 14px;
+			background: #07080b;
+			border-bottom: 1px solid var(--line);
+		}
+
+		.player-title {
+			font-family: "Space Grotesk", sans-serif;
+			font-weight: 700;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.player-bar .btn { padding: 7px 14px; font-size: 13px; }
+
+		.player-stage {
+			position: relative;
+			flex: 1;
+		}
+
+		.player iframe {
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			border: 0;
+			background: #000;
+		}
+
+		.player-status {
+			position: absolute;
+			inset: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 16px;
+			text-align: center;
+			padding: 20px;
+			color: var(--text-dim);
+			pointer-events: none;
+		}
+
+		.player-status[hidden] { display: none; }
+
+		.spinner {
+			width: 42px;
+			height: 42px;
+			border: 3px solid var(--line);
+			border-top-color: var(--accent);
+			border-radius: 50%;
+			animation: spin 0.9s linear infinite;
+		}
+
+		@keyframes spin { to { transform: rotate(360deg); } }
+
+		/* Respect players who turn off motion in their OS settings */
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after {
+				animation: none !important;
+				transition: none !important;
+			}
+			html { scroll-behavior: auto; }
+		}
+
+		@media (max-width: 560px) {
+			nav a { margin-left: 16px; }
+			section { padding: 64px 0; }
 		}
 	</style>
 </head>
 <body>
-	<h1>Coming soon.</h1>
+
+	<header>
+		<div class="wrap">
+			<a class="logo" href="#">Pasta<span>Preacher</span></a>
+			<nav>
+				<a href="#games">Games</a>
+				<a href="#about">About</a>
+			</nav>
+		</div>
+	</header>
+
+	<main>
+		<!-- Hero -->
+		<section class="hero">
+			<div class="glow one"></div>
+			<div class="glow two"></div>
+			<div class="wrap hero-content">
+				<span class="eyebrow">Independent Game Developer</span>
+				<h1>Games worth<br><span class="shine">playing.</span></h1>
+				<p>Handcrafted games built in Godot. No downloads, no installs. Click play and you're in.</p>
+				<a class="btn btn-primary" href="#games">Browse games ↓</a>
+			</div>
+		</section>
+
+		<!-- Games: cards are generated from the GAMES list in the script below -->
+		<section id="games">
+			<div class="wrap">
+				<h2 class="section-title">The Games</h2>
+				<p class="section-sub">Playable right here in your browser.</p>
+				<div class="games" id="game-grid"></div>
+			</div>
+		</section>
+
+		<!-- About -->
+		<section class="about" id="about">
+			<div class="wrap">
+				<h2 class="section-title">About</h2>
+				<p>
+					I'm Pasta Preacher, a solo developer making games in Godot.
+					Replace this paragraph with a few sentences about you, what you make, and what you're working on next.
+				</p>
+			</div>
+		</section>
+	</main>
+
+	<footer>
+		<div class="wrap">
+			<span>© <span id="year"></span> Pasta Preacher</span>
+			<span>Made with Godot</span>
+		</div>
+	</footer>
+
+	<!-- Fullscreen player overlay -->
+	<div class="player" id="player" hidden>
+		<div class="player-bar">
+			<span class="player-title" id="player-title"></span>
+			<div>
+				<button class="btn btn-ghost" id="btn-fullscreen" type="button">Fullscreen</button>
+				<button class="btn btn-ghost" id="btn-close" type="button">✕ Close</button>
+			</div>
+		</div>
+		<div class="player-stage">
+			<iframe id="player-frame" title="Game" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
+			<div class="player-status" id="player-status">
+				<div class="spinner"></div>
+				<span>Loading…</span>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// ==============================================================
+		// EDIT YOUR GAMES HERE
+		// - folder:  the folder name inside /games/ holding the Godot web export
+		// - cover:   optional image inside that folder (16:9 works best)
+		// - itch:    optional link to the itch.io page ("" hides the button)
+		// ==============================================================
+		const GAMES = [
+			{
+				title: "Game One",
+				tagline: "A one-line hook for your first game.",
+				description: "Two or three sentences about what makes this game special: the core idea, the feel, and why someone should click play.",
+				tags: ["Action", "2D"],
+				folder: "game-one",
+				cover: "cover.jpg",
+				itch: ""
+			},
+			{
+				title: "Game Two",
+				tagline: "A one-line hook for your second game.",
+				description: "Two or three sentences about what makes this game special: the core idea, the feel, and why someone should click play.",
+				tags: ["Puzzle", "3D"],
+				folder: "game-two",
+				cover: "cover.jpg",
+				itch: ""
+			}
+		];
+
+		// ---------- Elements ----------
+		const grid = document.getElementById("game-grid");
+		const player = document.getElementById("player");
+		const frame = document.getElementById("player-frame");
+		const statusBox = document.getElementById("player-status");
+		const playerTitle = document.getElementById("player-title");
+
+		document.getElementById("year").textContent = new Date().getFullYear();
+
+		// ---------- Build the cards ----------
+		function el(tag, className, text) {
+			const node = document.createElement(tag);
+			if (className) node.className = className;
+			if (text) node.textContent = text;
+			return node;
+		}
+
+		function renderGames() {
+			for (const game of GAMES) {
+				const card = el("article", "card");
+
+				// Cover: gradient + first letter, replaced by the image if it loads
+				const cover = el("div", "cover");
+				cover.appendChild(el("span", "initial", game.title.charAt(0)));
+				if (game.cover) {
+					const img = new Image();
+					img.alt = game.title + " cover art";
+					img.loading = "lazy";
+					img.src = "games/" + game.folder + "/" + game.cover;
+					img.onerror = () => img.remove();
+					cover.appendChild(img);
+				}
+
+				const body = el("div", "card-body");
+				const tags = el("div", "tags");
+				for (const t of game.tags) tags.appendChild(el("span", "tag", t));
+
+				const actions = el("div", "card-actions");
+				const play = el("button", "btn btn-primary", "▶ Play Now");
+				play.type = "button";
+				play.addEventListener("click", () => openGame(game));
+				actions.appendChild(play);
+
+				if (game.itch) {
+					const itch = el("a", "btn btn-ghost", "itch.io page");
+					itch.href = game.itch;
+					itch.target = "_blank";
+					itch.rel = "noopener";
+					actions.appendChild(itch);
+				}
+
+				body.append(tags, el("h3", "", game.title), el("p", "tagline", game.tagline), el("p", "desc", game.description), actions);
+				card.append(cover, body);
+				grid.appendChild(card);
+			}
+		}
+
+		// ---------- Player ----------
+		function showStatus(html) {
+			statusBox.innerHTML = html;
+			statusBox.hidden = false;
+		}
+
+		async function enterFullscreen() {
+			// Browsers only allow this right after a click, which is why Play Now calls it first
+			try {
+				if (player.requestFullscreen) await player.requestFullscreen();
+				else if (player.webkitRequestFullscreen) player.webkitRequestFullscreen();
+			} catch (e) {
+				// Fullscreen refused (e.g. iPhone Safari): the overlay still fills the window
+			}
+		}
+
+		async function openGame(game) {
+			const url = "games/" + game.folder + "/index.html";
+
+			playerTitle.textContent = game.title;
+			player.hidden = false;
+			document.body.classList.add("no-scroll");
+			showStatus('<div class="spinner"></div><span>Loading ' + game.title + '…</span>');
+			enterFullscreen();
+
+			// Check the build exists first, so a missing upload shows a friendly message
+			try {
+				const res = await fetch(url, { method: "HEAD", cache: "no-store" });
+				if (!res.ok) {
+					showStatus("<span>This game isn't available right now.<br>Please check back soon.</span>");
+					return;
+				}
+			} catch (e) {
+				// Check failed (e.g. opened from your hard drive): try loading anyway
+			}
+
+			frame.onload = () => {
+				statusBox.hidden = true;
+				frame.focus(); // so keyboard input goes straight to the game
+			};
+			frame.src = url;
+		}
+
+		function closeGame() {
+			frame.onload = null;
+			frame.src = "about:blank"; // unloads the game so its audio stops
+			player.hidden = true;
+			document.body.classList.remove("no-scroll");
+			if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+		}
+
+		document.getElementById("btn-close").addEventListener("click", closeGame);
+		document.getElementById("btn-fullscreen").addEventListener("click", enterFullscreen);
+
+		renderGames();
+	</script>
 </body>
 </html>
