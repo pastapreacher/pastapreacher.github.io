@@ -300,7 +300,21 @@
 		.card-actions {
 			display: flex;
 			flex-wrap: wrap;
+			align-items: center;
 			gap: 10px;
+		}
+
+		/* Small "Windows · 120 MB" label beside the download button */
+		.dl-meta {
+			font-size: 13px;
+			color: var(--text-dim);
+		}
+
+		/* Note under the game grid about the Windows SmartScreen prompt */
+		.games-note {
+			margin: 28px 0 0;
+			font-size: 13px;
+			color: var(--text-dim);
 		}
 
 		/* ---------- About & footer ---------- */
@@ -436,7 +450,7 @@
 			<div class="wrap hero-content">
 				<span class="eyebrow">Independent Game Developer</span>
 				<h1>Games worth<br><span class="shine">playing.</span></h1>
-				<p>Handcrafted games built in Godot. No downloads, no installs. Click play and you're in.</p>
+				<p>Handcrafted games built in Godot. Free to download, made with love, and polished to play.</p>
 				<a class="btn btn-primary" href="#games">Browse games ↓</a>
 			</div>
 		</section>
@@ -445,8 +459,12 @@
 		<section id="games">
 			<div class="wrap">
 				<h2 class="section-title">The Games</h2>
-				<p class="section-sub">Playable right here in your browser.</p>
+				<p class="section-sub">Download for Windows. Unzip, run, and play.</p>
 				<div class="games" id="game-grid"></div>
+				<p class="games-note">
+					Windows may show a "Windows protected your PC" notice because these games aren't code-signed.
+					Click <strong>More info → Run anyway</strong> to start the game.
+				</p>
 			</div>
 		</section>
 
@@ -489,28 +507,44 @@
 
 	<script>
 		// ==============================================================
+		// Download links point at the GitHub Release tagged "downloads".
+		// Upload each game's .zip to that release; the link stays the same
+		// when you replace a zip with a newer one of the same name.
+		// ==============================================================
+		const RELEASE_BASE = "https://github.com/pastapreacher/pastapreacher.github.io/releases/download/downloads/";
+
+		// ==============================================================
 		// EDIT YOUR GAMES HERE
-		// - folder:  the folder name inside /games/ holding the Godot web export
-		// - cover:   optional image inside that folder (16:9 works best)
-		// - itch:    optional link to the itch.io page ("" hides the button)
+		// - folder:   the folder name inside /games/ holding the cover image
+		// - cover:    optional image inside that folder (16:9 works best)
+		// - download: exact file name of the zip uploaded to the release ("" hides the button)
+		// - size:     optional label shown next to the button, e.g. "120 MB"
+		// - web:      true only if a browser build is in the folder (shows Play Now)
+		// - itch:     optional link to the itch.io page ("" hides the button)
 		// ==============================================================
 		const GAMES = [
 			{
-				title: "Game One",
-				tagline: "A one-line hook for your first game.",
-				description: "Two or three sentences about what makes this game special: the core idea, the feel, and why someone should click play.",
-				tags: ["Action", "2D"],
+				title: "Sock Match",
+				tagline: "A one-line hook for Sock Match.",
+				description: "Two or three sentences about what makes this game special: the core idea, the feel, and why someone should download it.",
+				tags: ["Puzzle", "2D"],
 				folder: "game-one",
 				cover: "cover.jpg",
+				download: "SockMatch-Windows.zip",
+				size: "",
+				web: false,
 				itch: ""
 			},
 			{
-				title: "Game Two",
-				tagline: "A one-line hook for your second game.",
-				description: "Two or three sentences about what makes this game special: the core idea, the feel, and why someone should click play.",
-				tags: ["Puzzle", "3D"],
+				title: "Sin Ball",
+				tagline: "A one-line hook for Sin Ball.",
+				description: "Two or three sentences about what makes this game special: the core idea, the feel, and why someone should download it.",
+				tags: ["Action", "3D"],
 				folder: "game-two",
 				cover: "cover.jpg",
+				download: "SinBall-Windows.zip",
+				size: "",
+				web: false,
 				itch: ""
 			}
 		];
@@ -553,10 +587,21 @@
 				for (const t of game.tags) tags.appendChild(el("span", "tag", t));
 
 				const actions = el("div", "card-actions");
-				const play = el("button", "btn btn-primary", "▶ Play Now");
-				play.type = "button";
-				play.addEventListener("click", () => openGame(game));
-				actions.appendChild(play);
+
+				if (game.download) {
+					const dl = el("a", "btn btn-primary", "⬇ Download");
+					dl.href = RELEASE_BASE + encodeURIComponent(game.download);
+					actions.appendChild(dl);
+					actions.appendChild(el("span", "dl-meta", "Windows" + (game.size ? " · " + game.size : "")));
+				}
+
+				// Browser play is optional: only shown when a web build exists
+				if (game.web) {
+					const play = el("button", "btn btn-ghost", "▶ Play in browser");
+					play.type = "button";
+					play.addEventListener("click", () => openGame(game));
+					actions.appendChild(play);
+				}
 
 				if (game.itch) {
 					const itch = el("a", "btn btn-ghost", "itch.io page");
